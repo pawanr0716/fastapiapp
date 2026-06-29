@@ -9,6 +9,7 @@ function App(){
     <>
     <NavBar/>
     <Welcome/>
+    <br/>
     <CompanyCard/>
     <JobCard/>
     <Footer/>
