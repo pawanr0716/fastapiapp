@@ -28,7 +28,7 @@ def get_company(company_id: int, db:Session=Depends(get_db)):
 
 @router.put("/{company_id}",status_code=status.HTTP_200_OK)
 def update_company(company_id:int,company:CompanyUpdate, db:Session=Depends(get_db)):
-    db_company = db.query(Company).filter(Companu.id == company_id).first()
+    db_company = db.query(Company).filter(Company.id == company_id).first()
     if not db_company:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
     for key, value in company.dict().items():
@@ -42,7 +42,7 @@ def update_company(company_id:int,company:CompanyUpdate, db:Session=Depends(get_
 def delete_company(company_id: int,db:Session=Depends(get_db)):
     db_company = db.query(Company).filter(Company.id == company_id).first()
     if not db_company:
-        raise HTTPException(status_code=ststus.HTTP_404_NOT_FOUND, detail="Company not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
     db.delete(db_company)
     db.commit()
     return {"message": "Company deleted successfully"}
