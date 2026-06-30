@@ -3,9 +3,18 @@ from fastapi import FastAPI
 from routers import company,job
 from database import Base,engine
 from models import company as company_model,job as job_model
+from fastapi.middleware.cors import CORSMiddleware
 
 app=FastAPI()
-print(engine)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+
+
+)
 
 # Base.metadata.create_all(bind=engine)
 

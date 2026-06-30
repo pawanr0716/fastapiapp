@@ -1,8 +1,8 @@
-import NavBar from "./components/NavBar";
-import Welcome from "./components/Welcome";
-import Footer from "./components/Footer";
-import CompanyCard from "./components/CompanyCard";
-import JobCard from "./components/JobCard";
+import NavBar from "./Components/NavBar";
+import Welcome from "./Components/Welcome";
+import Footer from "./Components/footer";
+import CompanyCard from "./Components/CompanyCard";
+import JobCard from "./Components/JobCard";
 import {useState,useEffect} from "react";
 import { getCompanies } from "./Services/CompanyService";
 import type { Company } from "./types/company";
@@ -26,15 +26,24 @@ function App() {
     fetchCompanies();
   }, []);
 
+  if(loading){
+    return <div>Loading...</div>;
+  }
+
+  if(error){
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
     <>
       <NavBar />
       <Welcome />
-      <CompanyCard />
+      <CompanyCard
+      companies={companies}/>
       <JobCard />
       <Footer />
     </>
-  );
+  )
 }
   
 export default App;
