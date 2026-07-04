@@ -1,27 +1,80 @@
 // import Welcome from "./components/Welcome";
-import NavBar from "./Components/NavBar";
-import CompanyCard from "./Components/CompanyCard";
-import JobCard from "./Components/JobCard";
-import Footer from "./Components/footer";
+import NavBar from "./components/NavBar";
+import CompanyCard from "./components/CompanyCard";
+import JobCard from "./components/JobCard";
+import Footer from "./components/footer";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import {useEffect,useState} from "react";
 import { getCompanies,updateCompany,deleteCompany,createCompany } from "./Services/CompanyService";
+import { getJobs, createJob } from "./Services/JobService";
 import type {Company} from "./types/company"
+import type { Job } from "./types/job";
 
 function App(){
   const [loading,setLoading] = useState(true);
   const [error,setError] = useState<Error | null>(null)
   const [companies,setCompanies] = useState<Company[]>([]);
+  const [jobs,setJobs] = useState<Job[]>([]);
+  const [token,setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [showRegister,setShowRegister] = useState(false);
 
   async function fetchCompanies() {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const company = await getCompanies();
       setCompanies(company);
+      setError(null);
     } catch (err) {
+      console.error("Failed to load companies:", err);
+      setCompanies([]);
       setError(err as Error);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function fetchJobs() {
+    if (!token) {
+      return;
+    }
+
+    try {
+      const jobList = await getJobs();
+      setJobs(jobList);
+    } catch (err) {
+      console.error("Failed to load jobs:", err);
+      setJobs([]);
+      setError(err as Error);
+    }
+  }
+
+  async function handleLogin(newToken: string) {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+    setShowRegister(false);
+  }
+
+  function handleSwitchToRegister() {
+    setShowRegister(true);
+    setError(null);
+  }
+
+  function handleSwitchToLogin() {
+    setShowRegister(false);
+    setError(null);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    setToken(null);
+    setCompanies([]);
+    setError(null);
   }
 
   async function handleEdit(company:Company){
@@ -51,11 +104,28 @@ function App(){
     }
   }
 
+  async function handleAddJob(job: Job) {
+    try {
+      const newJob = await createJob(job);
+      setJobs([...jobs, newJob]);
+    } catch (err) {
+      setError(err as Error);
+    }
+  }
 
   useEffect(() => {
     fetchCompanies();
-  }, []);
+    fetchJobs();
+  }, [token]);
   
+  if (!token) {
+    return showRegister ? (
+      <Register onSwitchToLogin={handleSwitchToLogin} />
+    ) : (
+      <Login onLogin={handleLogin} onSwitchToRegister={handleSwitchToRegister} />
+    );
+  }
+
   if(loading){
     return <div>Loading...</div>
   }
@@ -68,6 +138,7 @@ function App(){
     <>
     <NavBar />
     {/* <Welcome /> */}
+    <button onClick={handleLogout}>Logout</button>
     <br />
     <CompanyCard 
     companies={companies}
@@ -75,7 +146,7 @@ function App(){
     ondelete={handleDelete}
     onadd={handleAdd}
     />
-    <JobCard />
+    <JobCard jobs={jobs} companies={companies} onAdd={handleAddJob} />
     <Footer />
     </>
   )
