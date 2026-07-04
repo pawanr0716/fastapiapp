@@ -1,33 +1,43 @@
-from fastapi import FastAPI
+import sys
+from pathlib import Path
 
-from routers import company,job,auth
-from database import Base,engine
-from models import company as company_model,job as job_model,users as user_model
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app=FastAPI()
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from backend.routers import company, job, auth,chat
+from backend.database import engine, Base
+
+# Create all database tables
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="TalentSpark API", version="1.0.0")
+
+# Add CORS middleware to allow frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-
-
 )
-# Base.metadata.create_all(bind=engine)
-app.include_router(auth.router)
+
+# Include routers
 app.include_router(company.router)
 app.include_router(job.router)
-
+app.include_router(auth.router)
+app.include_router(chat.router)
 @app.get("/")
 def read_root():
-    return {"Hello":"World"}
+    return {"message": "Welcome to TalentSpark API"}
 
-@app.get("/about")
-def read_about():
-    return {"about":"This is about page"}
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
 
-@app.get("/contact")
-def read_contact():
-    return {"contact":"Call me anytime"}
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)

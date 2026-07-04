@@ -1,7 +1,7 @@
-from sqlalchemy import Column,Integer,String,Enum
-from sqlalchemy.orm import declarative_base
-from database import Base,engine,SessionLocal
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
+
+from backend.database import Base
 
 class Company(Base):
     __tablename__="companies"
