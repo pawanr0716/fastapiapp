@@ -11,7 +11,7 @@ router = APIRouter(prefix="/company", tags=["company"])
 companies = []
 
 @router.post("/", status_code=status.HTTP_201_CREATED,response_model=CompanyResponse)
-def create_company(company: CompanyCreate, db: Session = Depends(get_db),current_user = Depends(role_required(["admin","hr"]))):
+def create_company(company: CompanyCreate, db: Session = Depends(get_db),current_user = Depends(get_current_user)):
     db_company = Company(**company.dict())
     db.add(db_company)
     db.commit()
@@ -31,7 +31,7 @@ def get_company(company_id: int, db: Session = Depends(get_db),current_user = De
     return company
  
 @router.put("/{company_id}", status_code=status.HTTP_201_CREATED)
-def update_company(company_id: int, company: CompanyUpdate,db: Session = Depends(get_db),current_user = Depends(role_required(["admin","hr"]))):
+def update_company(company_id: int, company: CompanyUpdate,db: Session = Depends(get_db),current_user = Depends(get_current_user)):
     db_company = db.query(Company).filter(Company.id == company_id).first()
     if not db_company:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Company not found")
@@ -42,7 +42,7 @@ def update_company(company_id: int, company: CompanyUpdate,db: Session = Depends
     return db_company
 
 @router.delete("/{company_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_company(company_id: int,db: Session = Depends(get_db),current_user = Depends(role_required(["admin","hr"]))):
+def delete_company(company_id: int,db: Session = Depends(get_db),current_user = Depends(get_current_user)):
     db_company = db.query(Company).filter(Company.id == company_id).first()
     if not db_company:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Company not found")

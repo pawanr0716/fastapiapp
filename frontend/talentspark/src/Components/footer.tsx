@@ -1,9 +1,9 @@
 function Footer() {
-    return (
-        <footer>
-            <p>All rights reserved by Talentspark</p>
-        </footer>
-    )
+  return (
+    <footer className="footer">
+      <p>&copy; {new Date().getFullYear()} TalentSpark. All rights reserved.</p>
+    </footer>
+  );
 }
 
-export default Footer
+export default Footer;

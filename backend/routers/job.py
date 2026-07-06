@@ -10,11 +10,11 @@ router = APIRouter(prefix="/job", tags=["job"])
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=JobResponse)
-def create_job(job: JobCreate, db: Session = Depends(get_db), current_user = Depends(role_required(["admin", "hr"]))):
+def create_job(job: JobCreate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     company = db.query(Company).filter(Company.id == job.company_id).first()
     if not company:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Company not found")
-    db_job = Job(**job.dict())
+    db_job = Job(**job.dict(by_alias=True))
     db.add(db_job)
     db.commit()
     db.refresh(db_job)
@@ -33,7 +33,7 @@ def get_job(job_id: int, db: Session = Depends(get_db), current_user = Depends(g
     return job
 
 @router.put("/{job_id}", status_code=status.HTTP_201_CREATED, response_model=JobResponse)
-def update_job(job_id: int, job: JobUpdate, db: Session = Depends(get_db), current_user = Depends(role_required(["admin", "hr"]))):
+def update_job(job_id: int, job: JobUpdate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     db_job = db.query(Job).filter(Job.id == job_id).first()
     if not db_job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Job not found")
@@ -41,7 +41,7 @@ def update_job(job_id: int, job: JobUpdate, db: Session = Depends(get_db), curre
         company = db.query(Company).filter(Company.id == job.company_id).first()
         if not company:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Company not found")
-    for key, value in job.dict().items():
+    for key, value in job.dict(by_alias=True).items():
         if value is not None:
             setattr(db_job, key, value)
     db.commit()
@@ -49,7 +49,7 @@ def update_job(job_id: int, job: JobUpdate, db: Session = Depends(get_db), curre
     return db_job
 
 @router.delete("/{job_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_job(job_id: int, db: Session = Depends(get_db), current_user = Depends(role_required(["admin","hr"]))):
+def delete_job(job_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     db_job = db.query(Job).filter(Job.id == job_id).first()
     if not db_job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Job not found")
