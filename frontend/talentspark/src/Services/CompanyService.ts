@@ -1,28 +1,26 @@
-import axios from "axios";
+import api from "./api";
 import type {Company} from "../types/company";
 
-const API_BASE_URL ="http://localhost:8000";
-
 export async function getCompanies(): Promise<Company[]> { 
-    const response = await axios.get<Company[]>(`${API_BASE_URL}/company`);
+    const response = await api.get<Company[]>(`/company/`);
     return response.data;
 }
 export async function getCompanyById(id: number): Promise<Company> { 
-    const response = await axios.get<Company>(`${API_BASE_URL}/company/${id}`);
+    const response = await api.get<Company>(`/company/${id}`);
     return response.data;
 }
 export async function createCompany(company : Company): Promise<Company> { 
-    const response = await axios.post<Company>(`${API_BASE_URL}/company`, company);
+    const response = await api.post<Company>(`/company/`, company);
     return response.data;
 
 }
 export async function updateCompany(id: number, company: Company): Promise<Company> { 
-    const response = await axios.put<Company>(`${API_BASE_URL}/company/${id}`, company);
+    const response = await api.put<Company>(`/company/${id}`, company);
     return response.data;
 
 }
 export async function deleteCompany(id: number): Promise<void> { 
-    const response = await axios.delete(`${API_BASE_URL}/company/${id}`);
+    const response = await api.delete(`/company/${id}`);
     return response.data;
 
 }

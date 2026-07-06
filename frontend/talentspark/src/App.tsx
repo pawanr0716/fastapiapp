@@ -7,7 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import {useEffect,useState} from "react";
 import { getCompanies,updateCompany,deleteCompany,createCompany } from "./Services/CompanyService";
-import { getJobs, createJob } from "./Services/JobService";
+import { getJobs, createJob, updateJob, deleteJob } from "./Services/JobServices";
 import type {Company} from "./types/company"
 import type { Job } from "./types/job";
 
@@ -113,6 +113,24 @@ function App(){
     }
   }
 
+  async function handleEditJob(job: Job) {
+    try {
+      const updatedJob = await updateJob(job.id, job);
+      setJobs(jobs.map((j) => j.id === updatedJob.id ? updatedJob : j));
+    } catch (err) {
+      setError(err as Error);
+    }
+  }
+
+  async function handleDeleteJob(id: number) {
+    try {
+      await deleteJob(String(id));
+      setJobs(jobs.filter((job) => job.id !== id));
+    } catch (err) {
+      setError(err as Error);
+    }
+  }
+
   useEffect(() => {
     fetchCompanies();
     fetchJobs();
@@ -146,7 +164,7 @@ function App(){
     ondelete={handleDelete}
     onadd={handleAdd}
     />
-    <JobCard jobs={jobs} companies={companies} onAdd={handleAddJob} />
+    <JobCard jobs={jobs} companies={companies} onAdd={handleAddJob} onEdit={handleEditJob} onDelete={handleDeleteJob} />
     <Footer />
     </>
   )
