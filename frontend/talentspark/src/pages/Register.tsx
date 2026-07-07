@@ -17,9 +17,10 @@ function Register({ onSwitchToLogin }: Props) {
       await register({ name, email, password, role });
       alert("Registration successful! Please login.");
       onSwitchToLogin();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error during registration:", error);
-      alert("Registration failed");
+      const message = error?.response?.data?.detail ?? error?.message ?? "Registration failed";
+      alert(`Registration failed: ${message}`);
     }
   };
 

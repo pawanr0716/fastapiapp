@@ -1,0 +1,12 @@
+# Additional requirements for server-side OCR
+pytesseract
+pdf2image
+Pillow
+
+# System dependencies (install outside pip):
+# - Tesseract OCR (https://github.com/tesseract-ocr/tesseract)
+#   On Windows: install the Windows installer and add tesseract to PATH.
+# - Poppler (for pdf2image):
+#   On Windows: download from https://blog.alivate.com.au/poppler-windows/ and add bin/ to PATH.
+# After installing system deps, install Python packages:
+# pip install -r backend/requirements-ocr.txt

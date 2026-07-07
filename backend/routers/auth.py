@@ -1,6 +1,7 @@
 from backend.utils.token import create_access_token
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import or_, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from backend.models.users import User
@@ -13,18 +14,22 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.email == user.email).first()
+    print("DEBUG auth.register payload:", user)
+    normalized_email = user.email.strip().lower()
+    normalized_username = user.name.strip().lower()
+
+    existing_user = db.query(User).filter(func.lower(User.email) == normalized_email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already exists")
 
-    existing_username = db.query(User).filter(User.username == user.name).first()
+    existing_username = db.query(User).filter(func.lower(User.username) == normalized_username).first()
     if existing_username:
         raise HTTPException(status_code=400, detail="Username already exists")
 
     hashed_password = hash_password(user.password)
     db_user = User(
-        username=user.name,
-        email=user.email,
+        username=normalized_username,
+        email=normalized_email,
         hashed_password=hashed_password,
         role=user.role
     )
@@ -45,9 +50,12 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    email = form_data.username
+    print("DEBUG auth.login form_data:", form_data.username, form_data.scopes)
+    email_or_username = form_data.username.strip().lower()
     password = form_data.password
-    existing_user = db.query(User).filter(User.email == email).first()
+    existing_user = db.query(User).filter(
+        or_(func.lower(User.email) == email_or_username, func.lower(User.username) == email_or_username)
+    ).first()
     if not existing_user:
         raise HTTPException(status_code=404, detail="User not found")
     if not verify_password(password, existing_user.hashed_password):

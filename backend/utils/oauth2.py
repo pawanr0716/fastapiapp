@@ -7,6 +7,7 @@ from backend.utils.token import verify_access_token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    print("DEBUG get_current_user token:", token)
     return verify_access_token(token, db)
 
 def role_required(required_roles: list[str]):

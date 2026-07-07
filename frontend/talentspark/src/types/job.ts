@@ -1,6 +1,6 @@
 interface Job{
     id:number;
-    Title:string;
+    title:string;
     description:string;
     salary:string;
     company_id:number;

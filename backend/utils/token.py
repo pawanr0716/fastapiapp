@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
 
-def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=2)):
+def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=8)):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
@@ -23,11 +23,14 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=2
 def verify_access_token(token: str, db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print("DEBUG verify_access_token payload:", payload)
         user_id = payload.get("sub")
-    except JWTError:
+    except JWTError as exc:
+        print("DEBUG verify_access_token JWTError:", exc)
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     if user_id is None:
+        print("DEBUG verify_access_token missing sub")
         raise HTTPException(status_code=401, detail="Invalid token payload")
 
     user = db.query(User).filter(User.id == int(user_id)).first()

@@ -4,7 +4,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 from fastembed import TextEmbedding
 from sqlalchemy.orm import Session
-from models.job import Job
+from backend.models.job import Job
 
 load_dotenv()
 
@@ -48,33 +48,36 @@ def embed_all_jobs(db: Session) -> int:
                 id=job.id,
                 vector=vector,
                 payload={
-                    "title": job.title,"description": job.description or"","salary": job.salary,"job_id": job.id
-                }
+                    "title": job.title,
+                    "description": job.description or "",
+                    "salary": job.salary,
+                    "job_id": job.id,
+                },
             )
-
         )
 
-        qdrant.upsert(collection_name=COLLECTION_NAME, points=points)
-        return len(points)
+    # Upsert all points at once
+    qdrant.upsert(collection_name=COLLECTION_NAME, points=points)
+    return len(points)
 
-        def search_jobs(query: str, top_k: int = 5) -> list[dict]:
-            ensure_collection()
-            query_vector = embed_text(query)
-            results = qdrant.query_points(
-                collection_name=COLLECTION_NAME,
-                query=query_vector,
-                limit=top_k
-            )
-            return [
-                {
-                    "job_id": hit.payload.get("job_id"),
-                    "title": hit.payload.get("title"),
-                    "description": hit.payload.get("description"),
-                    "salary": hit.payload.get("salary"),
-                    "score": round(hit.score, 4)
-                }
-                for hit in results.points
-            ]
+def search_jobs(query: str, top_k: int = 5) -> list[dict]:
+    ensure_collection()
+    query_vector = embed_text(query)
+    results = qdrant.query_points(
+        collection_name=COLLECTION_NAME,
+        query=query_vector,
+        limit=top_k,
+    )
+    return [
+        {
+            "job_id": hit.payload.get("job_id"),
+            "title": hit.payload.get("title"),
+            "description": hit.payload.get("description"),
+            "salary": hit.payload.get("salary"),
+            "score": round(hit.score, 4),
+        }
+        for hit in results.points
+    ]
 def match_jobs_for_profile(skills: str, experience: str, top_k: int = 5) -> list[dict]:
     ensure_collection()
     profile_text = f"Skills: {skills}. Experience: {experience}"

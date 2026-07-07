@@ -12,7 +12,14 @@ export async function getCompanyById(id: number): Promise<Company> {
 }
 
 export async function createCompany(company: Company): Promise<Company> {
-  const response = await api.post<Company>("/company/", company);
+  const token = localStorage.getItem("token");
+  const response = await api.post<Company>("/company/", company, {
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`,
+        }
+      : undefined,
+  });
   return response.data;
 }
 

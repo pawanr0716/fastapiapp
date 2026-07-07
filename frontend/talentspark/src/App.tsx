@@ -3,10 +3,12 @@ import NavBar from "./components/NavBar";
 import CompanyCard from "./components/CompanyCard";
 import JobCard from "./components/JobCard";
 import ChatWidget from "./components/ChatWidget";
+import ResumeAnalyzer from "./components/ResumeAnalyzer";
 import Footer from "./components/footer";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { useEffect, useState } from "react";
+import api from "./Services/api";
 import {
   getCompanies,
   updateCompany,
@@ -62,9 +64,21 @@ function App() {
 
   async function handleLogin(newToken: string) {
     localStorage.setItem("token", newToken);
+    api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
     setToken(newToken);
     setShowRegister(false);
   }
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken && storedToken !== token) {
+      api.defaults.headers.common.Authorization = `Bearer ${storedToken}`;
+      setToken(storedToken);
+    }
+    if (!storedToken) {
+      delete api.defaults.headers.common.Authorization;
+    }
+  }, [token]);
 
   function handleSwitchToRegister() {
     setShowRegister(true);
@@ -191,6 +205,7 @@ function App() {
           onEdit={handleEditJob}
           onDelete={handleDeleteJob}
         />
+        <ResumeAnalyzer />
         <ChatWidget />
       </main>
       <Footer />

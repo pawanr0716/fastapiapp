@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Job } from "../types/job";
 import type { Company } from "../types/company";
 
@@ -14,14 +14,14 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
   const [editJobId, setEditJobId] = useState<number | null>(null);
   const [jobForm, setJobForm] = useState<Job>({
     id: 0,
-    Title: "",
+    title: "",
     description: "",
     salary: "",
     company_id: companies.length > 0 ? companies[0].id : 0,
   });
   const [editForm, setEditForm] = useState<Job>({
     id: 0,
-    Title: "",
+    title: "",
     description: "",
     salary: "",
     company_id: companies.length > 0 ? companies[0].id : 0,
@@ -31,7 +31,7 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
     onAdd(jobForm);
     setJobForm({
       id: 0,
-      Title: "",
+      title: "",
       description: "",
       salary: "",
       company_id: companies.length > 0 ? companies[0].id : 0,
@@ -48,7 +48,7 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
     setEditJobId(null);
     setEditForm({
       id: 0,
-      Title: "",
+      title: "",
       description: "",
       salary: "",
       company_id: companies.length > 0 ? companies[0].id : 0,
@@ -59,12 +59,21 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
     setEditJobId(null);
     setEditForm({
       id: 0,
-      Title: "",
+      title: "",
       description: "",
       salary: "",
       company_id: companies.length > 0 ? companies[0].id : 0,
     });
   };
+
+  useEffect(() => {
+    if (companies.length > 0 && jobForm.company_id === 0) {
+      setJobForm((prev) => ({ ...prev, company_id: companies[0].id }));
+    }
+    if (companies.length > 0 && editForm.company_id === 0) {
+      setEditForm((prev) => ({ ...prev, company_id: companies[0].id }));
+    }
+  }, [companies]);
 
   return (
     <div className="section-card fade-in">
@@ -79,9 +88,9 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
                 <>
                   <input
                     type="text"
-                    value={editForm.Title}
-                    onChange={(e) => setEditForm({ ...editForm, Title: e.target.value })}
-                    placeholder={job.Title}
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    placeholder={job.title}
                   />
                   <input
                     type="text"
@@ -116,7 +125,7 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
                 </>
               ) : (
                 <>
-                  <h3>{job.Title}</h3>
+                  <h3>{job.title}</h3>
                   <p>{job.description}</p>
                   <p>Salary: {job.salary}</p>
                   <p>Company ID: {job.company_id}</p>
@@ -140,8 +149,8 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
         <div className="form-row">
           <input
             type="text"
-            value={jobForm.Title}
-            onChange={(e) => setJobForm({ ...jobForm, Title: e.target.value })}
+            value={jobForm.title}
+            onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
             placeholder="Job Title"
           />
           <input

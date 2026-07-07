@@ -12,7 +12,14 @@ export async function getJobById(id: number): Promise<Job> {
 }
 
 export async function createJob(job: Job): Promise<Job> {
-  const response = await api.post<Job>("/job/", job);
+  const token = localStorage.getItem("token");
+  const response = await api.post<Job>("/job/", job, {
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`,
+        }
+      : undefined,
+  });
   return response.data;
 }
 

@@ -15,9 +15,10 @@ function Login({ onLogin, onSwitchToRegister }: Props) {
     try {
       const response = await login({ email, password });
       onLogin(response.access_token);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error during login:", error);
-      alert("Login failed");
+      const message = error?.response?.data?.detail ?? error?.message ?? "Login failed";
+      alert(`Login failed: ${message}`);
     }
   };
 

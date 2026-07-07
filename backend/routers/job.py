@@ -21,12 +21,12 @@ def create_job(job: JobCreate, db: Session = Depends(get_db), current_user = Dep
     return db_job
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[JobResponse])
-def get_all_job(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+def get_all_job(db: Session = Depends(get_db)):
     jobs = db.query(Job).all()
     return jobs
 
 @router.get("/{job_id}", status_code=status.HTTP_200_OK, response_model=JobResponse)
-def get_job(job_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+def get_job(job_id: int, db: Session = Depends(get_db)):
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Job not found")

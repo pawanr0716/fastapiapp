@@ -19,12 +19,12 @@ def create_company(company: CompanyCreate, db: Session = Depends(get_db),current
     return db_company
 
 @router.get("/",status_code=status.HTTP_200_OK, response_model=list[CompanyResponse])
-def get_all_company(db: Session = Depends(get_db),current_user = Depends(get_current_user)):
+def get_all_company(db: Session = Depends(get_db)):
     companies = db.query(Company).all()
     return companies
 
 @router.get("/{company_id}", status_code=status.HTTP_200_OK, response_model=CompanyResponse)
-def get_company(company_id: int, db: Session = Depends(get_db),current_user = Depends(get_current_user)):
+def get_company(company_id: int, db: Session = Depends(get_db)):
     company = db.query(Company).filter(Company.id == company_id).first()
     if not company:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Company not found")
