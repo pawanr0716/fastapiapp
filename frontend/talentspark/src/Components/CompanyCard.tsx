@@ -41,6 +41,7 @@ function CompanyCard({ companies, onadd, onedit, ondelete }: Props) {
 
   const handleSave = () => {
     onedit(editForm);
+    setEditCompanyId(null);
     setEditForm({
       id: 0,
       name: "",
@@ -111,7 +112,13 @@ function CompanyCard({ companies, onadd, onedit, ondelete }: Props) {
                 <p>Phone: {company.phone}</p>
                 <p>Location: {company.location}</p>
                 <div className="company-actions">
-                  <button className="edit-btn" onClick={() => setEditCompanyId(company.id)}>
+                  <button
+                    className="edit-btn"
+                    onClick={() => {
+                      setEditCompanyId(company.id);
+                      setEditForm(company);
+                    }}
+                  >
                     Edit
                   </button>
                   <button className="delete-btn" onClick={() => ondelete(company.id)}>
