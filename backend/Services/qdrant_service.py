@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 from fastembed import TextEmbedding
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from backend.models.job import Job
 
 load_dotenv()
@@ -18,6 +19,11 @@ qdrant = QdrantClient(
 
 embeddings_model = TextEmbedding("BAAI/bge-small-en-v1.5")
 
+def embed_text(text: str) -> list[float]:
+    """Embed text using the fastembed model and return as a list of floats."""
+    embeddings = list(embeddings_model.embed(text))
+    return embeddings[0].tolist()
+
 def ensure_collection():
     collections = [c.name for c in qdrant.get_collections().collections]
     if COLLECTION_NAME in collections:
@@ -31,14 +37,14 @@ def ensure_collection():
             collection_name=COLLECTION_NAME,
             vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE)
         )
-def embed_text(text: str) -> list[float]:
-    return next(embeddings_model.embed([text])).tolist()
-def embed_all_jobs(db: Session) -> int:
-    ensure_collection()
-    jobs = db.query(Job).all()
+
+async def embeded_all_jobs(db: AsyncSession) -> int:
+    ensure_collection() 
+    result = await db.execute(select(Job))
+    jobs = result.scalars().all()
     if not jobs:
         return 0
-    
+
     points = []
     for job in jobs:
         text = f"{job.title} {job.description or ''}"
@@ -78,6 +84,7 @@ def search_jobs(query: str, top_k: int = 5) -> list[dict]:
         }
         for hit in results.points
     ]
+
 def match_jobs_for_profile(skills: str, experience: str, top_k: int = 5) -> list[dict]:
     ensure_collection()
     profile_text = f"Skills: {skills}. Experience: {experience}"
@@ -97,4 +104,3 @@ def match_jobs_for_profile(skills: str, experience: str, top_k: int = 5) -> list
         }
         for hit in results.points
     ]
-        
