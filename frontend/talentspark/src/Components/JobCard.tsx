@@ -28,6 +28,11 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
   });
 
   const handleAdd = () => {
+    // simple client-side validation
+    if (!jobForm.title || jobForm.company_id === 0) {
+      alert("Please provide a job title and select a company.");
+      return;
+    }
     onAdd(jobForm);
     setJobForm({
       id: 0,
@@ -176,7 +181,11 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
             ))}
           </select>
         </div>
-        <button className="add-btn" onClick={handleAdd}>
+        <button
+          className="add-btn"
+          onClick={handleAdd}
+          disabled={companies.length === 0 || jobForm.company_id === 0}
+        >
           Add Job
         </button>
       </div>

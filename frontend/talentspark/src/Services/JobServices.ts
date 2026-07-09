@@ -30,5 +30,6 @@ export async function updateJob(id: number, job: Job): Promise<Job> {
 
 export async function deleteJob(id: string): Promise<void> {
   const response = await api.delete(`/job/${id}`);
-  return response.data;
+  if (response.status === 200 || response.status === 204) return;
+  throw new Error(`Delete failed with status ${response.status}`);
 }

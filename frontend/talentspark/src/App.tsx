@@ -119,9 +119,18 @@ function App() {
 
   async function handleAdd(company: Company) {
     try {
-      const newCompany = await createCompany(company);
+      // generate idempotency key per logical submit
+      const idempotencyKey = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+      const newCompany = await createCompany(company, idempotencyKey);
       setCompanies([...companies, newCompany]);
     } catch (err) {
+      const status = (err as any)?.response?.status;
+      if (status === 409) {
+        // Conflict likely caused by a duplicate request; refresh list instead
+        await fetchCompanies();
+        setError(null);
+        return;
+      }
       setError(err as Error);
     }
   }
@@ -131,6 +140,11 @@ function App() {
       const newJob = await createJob(job);
       setJobs([...jobs, newJob]);
     } catch (err) {
+      const status = (err as any)?.response?.status;
+      if (status === 400) {
+        setError(new Error('Bad request when creating job (check company selection and fields)'));
+        return;
+      }
       setError(err as Error);
     }
   }

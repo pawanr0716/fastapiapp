@@ -18,6 +18,7 @@ function CompanyCard({ companies, onadd, onedit, ondelete }: Props) {
     location: "",
     jobs: [],
   });
+  const [adding, setAdding] = useState(false);
   const [editForm, setEditForm] = useState<Company>({
     id: 0,
     name: "",
@@ -27,16 +28,21 @@ function CompanyCard({ companies, onadd, onedit, ondelete }: Props) {
     jobs: [],
   });
 
-  const handleAdd = () => {
-    onadd(addForm);
-    setAddForm({
-      id: 0,
-      name: "",
-      email: "",
-      phone: "",
-      location: "",
-      jobs: [],
-    });
+  const handleAdd = async () => {
+    try {
+      setAdding(true);
+      await onadd(addForm);
+      setAddForm({
+        id: 0,
+        name: "",
+        email: "",
+        phone: "",
+        location: "",
+        jobs: [],
+      });
+    } finally {
+      setAdding(false);
+    }
   };
 
   const handleSave = () => {
@@ -159,8 +165,8 @@ function CompanyCard({ companies, onadd, onedit, ondelete }: Props) {
             placeholder="Location"
           />
         </div>
-        <button className="add-btn" onClick={handleAdd}>
-          Add Company
+        <button className="add-btn" onClick={handleAdd} disabled={adding}>
+          {adding ? "Adding..." : "Add Company"}
         </button>
       </div>
     </div>

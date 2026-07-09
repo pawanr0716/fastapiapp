@@ -11,14 +11,13 @@ export async function getCompanyById(id: number): Promise<Company> {
   return response.data;
 }
 
-export async function createCompany(company: Company): Promise<Company> {
+export async function createCompany(company: Company, idempotencyKey?: string): Promise<Company> {
   const token = localStorage.getItem("token");
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
   const response = await api.post<Company>("/company/", company, {
-    headers: token
-      ? {
-          Authorization: `Bearer ${token}`,
-        }
-      : undefined,
+    headers,
   });
   return response.data;
 }
@@ -30,5 +29,7 @@ export async function updateCompany(id: number, company: Company): Promise<Compa
 
 export async function deleteCompany(id: number): Promise<void> {
   const response = await api.delete(`/company/${id}`);
-  return response.data;
+  // treat 200 or 204 as success
+  if (response.status === 200 || response.status === 204) return;
+  throw new Error(`Delete failed with status ${response.status}`);
 }
