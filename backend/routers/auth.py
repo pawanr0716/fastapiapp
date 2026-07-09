@@ -1,14 +1,14 @@
-from utils.token import create_access_token
+from backend.utils.token import create_access_token
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession 
 from sqlalchemy.future import select
-from models.users import User
-from schemas.users import UserCreate, UserResponse
-from schemas.token import Token
-from database import get_db
-from utils.security import hash_password, verify_password
+from backend.models.users import User
+from backend.schemas.users import UserCreate, UserResponse
+from backend.schemas.token import Token
+from backend.database import get_db
+from backend.utils.security import hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

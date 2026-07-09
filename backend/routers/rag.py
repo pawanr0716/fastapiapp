@@ -9,7 +9,7 @@ from backend.schemas.rag import (
     JobSearchRequest, SemanticSearchResponse, SemanticSearchResult
 )
 from backend.Services.resume_service import analyse_resume
-from backend.Services.qdrant_service import embed_all_jobs, search_jobs, match_jobs_for_profile
+from backend.Services.qdrant_service import embeded_all_jobs, search_jobs, match_jobs_for_profile
 from backend.Services.rag_service import rag_job_search
 
 router = APIRouter(prefix="/rag", tags=["RAG"])
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/rag", tags=["RAG"])
 
 @router.post("/embed-jobs", response_model=EmbedResponse)
 def embed_jobs(db: Session = Depends(get_db)):
-    count = embed_all_jobs(db)
+    count = embeded_all_jobs(db)
     return EmbedResponse(message=f"Embedded {count} jobs into Qdrant", count=count)
 
 

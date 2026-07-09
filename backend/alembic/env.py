@@ -18,9 +18,9 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 
 from backend.database import Base
-from models.company import Company 
-from models.job import Job
-from models.users import User
+from backend.models.company import Company
+from backend.models.job import Job
+from backend.models.users import User
 target_metadata = Base.metadata
 
 # from myapp import mymodel

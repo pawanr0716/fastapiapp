@@ -22,4 +22,4 @@ class CompanyResponse(CompanyBase):
     jobs:list[JobResponse]
 
     class Config:
-        from_attributes=True
+        from_attributes = True
